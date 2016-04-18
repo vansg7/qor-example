@@ -7,6 +7,7 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
+	"github.com/qor/cache/memcached"
 	"github.com/qor/i18n"
 	"github.com/qor/i18n/backends/database"
 	"github.com/qor/l10n"
@@ -38,6 +39,7 @@ func init() {
 		// DB.LogMode(true)
 		Publish = publish.New(DB)
 		config.Config.I18n = i18n.New(database.New(DB))
+		config.Config.I18n.CacheStore = memcached.New(&memcached.Config{Hosts: []string{"127.0.0.1:11211"}})
 
 		l10n.RegisterCallbacks(DB)
 		sorting.RegisterCallbacks(DB)
