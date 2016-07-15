@@ -48,6 +48,7 @@ func init() {
 
 	// Add Product
 	product := Admin.AddResource(&models.Product{}, &admin.Config{Menu: []string{"Product Management"}})
+	product.Meta(&admin.Meta{Name: "Category", Config: &admin.SelectOneConfig{RemoteDataResource: Admin.NewResource(&models.Category{})}})
 	product.Meta(&admin.Meta{Name: "MadeCountry", Config: &admin.SelectOneConfig{Collection: Countries}})
 	product.Meta(&admin.Meta{Name: "Description", Config: &admin.RichEditorConfig{AssetManager: assetManager}})
 
