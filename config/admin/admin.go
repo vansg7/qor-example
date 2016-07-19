@@ -1,8 +1,10 @@
 package admin
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
+	"html/template"
 	"strconv"
 	"strings"
 
@@ -51,6 +53,16 @@ func init() {
 	product.Meta(&admin.Meta{Name: "Category", Config: &admin.SelectOneConfig{RemoteDataResource: Admin.NewResource(&models.Category{})}})
 	product.Meta(&admin.Meta{Name: "MadeCountry", Config: &admin.SelectOneConfig{Collection: Countries}})
 	product.Meta(&admin.Meta{Name: "Description", Config: &admin.RichEditorConfig{AssetManager: assetManager}})
+	product.Meta(&admin.Meta{Name: "MainImageURL", Valuer: func(record interface{}, context *qor.Context) interface{} {
+		if p, ok := record.(*models.Product); ok {
+			result := bytes.NewBufferString("")
+			tmpl, _ := template.New("").Parse("<img src='{{.image}}'></img>")
+			tmpl.Execute(result, map[string]string{"image": p.MainImageURL()})
+			return template.HTML(result.String())
+		}
+		return ""
+	}})
+	product.UseTheme("grid")
 
 	colorVariationMeta := product.Meta(&admin.Meta{Name: "ColorVariations"})
 	colorVariation := colorVariationMeta.Resource
@@ -94,7 +106,7 @@ func init() {
 		}})
 	}
 
-	product.IndexAttrs("-ColorVariations")
+	product.IndexAttrs("MainImageURL", "Name", "Price")
 
 	product.Action(&admin.Action{
 		Name: "View On Site",
