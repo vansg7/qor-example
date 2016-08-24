@@ -17,6 +17,7 @@ import (
 	"github.com/qor/i18n/exchange_actions"
 	"github.com/qor/l10n/publish"
 	"github.com/qor/media_library"
+	"github.com/qor/notification"
 	"github.com/qor/qor"
 	"github.com/qor/qor-example/app/models"
 	"github.com/qor/qor-example/config"
@@ -43,6 +44,10 @@ func init() {
 	config.Filebox.SetAuth(auth.AdminAuth{})
 	dir := config.Filebox.AccessDir("/")
 	dir.SetPermission(roles.Allow(roles.Read, "admin"))
+
+	// Add Notification
+	Notification := notification.New(&notification.Config{})
+	Admin.NewResource(Notification)
 
 	// Add Dashboard
 	Admin.AddMenu(&admin.Menu{Name: "Dashboard", Link: "/admin"})
@@ -77,8 +82,8 @@ func init() {
 
 	colorVariationMeta := product.Meta(&admin.Meta{Name: "ColorVariations"})
 	colorVariation := colorVariationMeta.Resource
-	colorVariation.NewAttrs("-Product")
-	colorVariation.EditAttrs("-Product")
+	colorVariation.NewAttrs("-Product", "-ColorCode")
+	colorVariation.EditAttrs("-Product", "-ColorCode")
 
 	sizeVariationMeta := colorVariation.Meta(&admin.Meta{Name: "SizeVariations"})
 	sizeVariation := sizeVariationMeta.Resource
