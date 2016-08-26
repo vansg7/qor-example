@@ -25,7 +25,7 @@ func CurrentUser(ctx *gin.Context) *models.User {
 
 func HomeIndex(ctx *gin.Context) {
 	var products []models.Product
-	DB(ctx).Limit(9).Preload("ColorVariations").Preload("ColorVariations.Images").Find(&products)
+	DB(ctx).Limit(9).Preload("ColorVariations").Find(&products)
 	seoObj := models.SEOSetting{}
 	DB(ctx).First(&seoObj)
 
