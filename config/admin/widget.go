@@ -27,7 +27,7 @@ type QorWidgetSetting struct {
 
 func init() {
 	Widgets = widget.New(&widget.Config{DB: db.DB})
-	Widgets.WidgetSettingResource = Admin.AddResource(&QorWidgetSetting{})
+	Widgets.WidgetSettingResource = Admin.AddResource(&QorWidgetSetting{}, &admin.Config{Menu: []string{"Site Management"}})
 
 	Widgets.RegisterScope(&widget.Scope{
 		Name: "From Google",
