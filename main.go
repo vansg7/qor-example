@@ -17,7 +17,7 @@ func main() {
 	mux.Handle("/", routes.Router())
 	admin.Admin.MountTo("/admin", mux)
 	api.API.MountTo("/api", mux)
-	config.Filebox.MountTo("/downloads", mux)
+	admin.Filebox.MountTo("/downloads", mux)
 
 	for _, path := range []string{"system", "javascripts", "stylesheets", "images"} {
 		mux.Handle(fmt.Sprintf("/%s/", path), http.FileServer(http.Dir("public")))
