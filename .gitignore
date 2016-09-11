@@ -44,3 +44,5 @@ public/assets/
 npm-debug.log
 
 config/*.yml
+
+.DS_Store
