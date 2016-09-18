@@ -23,7 +23,6 @@ import (
 	"github.com/qor/qor-example/app/models"
 	"github.com/qor/qor-example/config/admin"
 	"github.com/qor/qor-example/db"
-	"github.com/qor/qor-example/db/seeds"
 	"github.com/qor/seo"
 	"github.com/qor/slug"
 	"github.com/qor/sorting"
@@ -35,12 +34,8 @@ import (
  * $ s3cmd put local_file_path s3://qor3/
  */
 
-var (
-	fake           = seeds.Fake
-	truncateTables = seeds.TruncateTables
-
-	Seeds  = seeds.Seeds
-	Tables = []interface{}{
+func main() {
+	Tables := []interface{}{
 		&models.User{}, &models.Address{},
 		&models.Category{}, &models.Color{}, &models.Size{}, &models.Collection{},
 		&models.Product{}, &models.ProductImage{}, &models.ColorVariation{}, &models.SizeVariation{},
@@ -54,10 +49,8 @@ var (
 		&database.Translation{},
 		&admin.QorWidgetSetting{},
 	}
-)
 
-func main() {
-	truncateTables(Tables...)
+	TruncateTables(Tables...)
 	createRecords()
 }
 
@@ -147,8 +140,8 @@ func createUsers() {
 	totalCount := 600
 	for i := 0; i < totalCount; i++ {
 		user := models.User{}
-		user.Name.Scan(fake.Name())
-		user.Email = emailRegexp.ReplaceAllString(fake.Email(), strings.Replace(strings.ToLower(user.Name.String), " ", "_", -1)+"$1")
+		user.Name.Scan(Fake.Name())
+		user.Email = emailRegexp.ReplaceAllString(Fake.Email(), strings.Replace(strings.ToLower(user.Name.String), " ", "_", -1)+"$1")
 		user.Gender = []string{"Female", "Male"}[i%2]
 		if err := db.DB.Create(&user).Error; err != nil {
 			log.Fatalf("create user (%v) failure, got err %v", user, err)
@@ -175,10 +168,10 @@ func createAddresses() {
 		address := models.Address{}
 		address.UserID = user.ID
 		address.ContactName = user.Name.String
-		address.Phone = fake.PhoneNumber()
-		address.City = fake.City()
-		address.Address1 = fake.StreetAddress()
-		address.Address2 = fake.SecondaryAddress()
+		address.Phone = Fake.PhoneNumber()
+		address.City = Fake.City()
+		address.Address1 = Fake.StreetAddress()
+		address.Address2 = Fake.SecondaryAddress()
 		if err := db.DB.Create(&address).Error; err != nil {
 			log.Fatalf("create address (%v) failure, got err %v", address, err)
 		}
