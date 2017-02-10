@@ -11,8 +11,10 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/qor/l10n"
 	"github.com/qor/media_library"
-	"github.com/qor/publish"
+	"github.com/qor/publish2"
+	"github.com/qor/qor-example/config/seo"
 	"github.com/qor/qor-example/db"
+	qor_seo "github.com/qor/seo"
 	"github.com/qor/slug"
 	"github.com/qor/sorting"
 	"github.com/qor/validations"
@@ -21,7 +23,6 @@ import (
 type Product struct {
 	gorm.Model
 	l10n.Locale
-	publish.Status
 	sorting.SortingDESC
 
 	Name                  string
@@ -36,8 +37,16 @@ type Product struct {
 	Description           string           `sql:"size:2000"`
 	ColorVariations       []ColorVariation `l10n:"sync"`
 	ColorVariationsSorter sorting.SortableCollection
-	Enabled               bool
 	ProductProperties     ProductProperties `sql:"type:text"`
+	Seo                   qor_seo.Setting
+
+	publish2.Version
+	publish2.Schedule
+	publish2.Visible
+}
+
+func (product Product) GetSEO() *qor_seo.SEO {
+	return seo.SEOCollection.GetSEO("Product Page")
 }
 
 func (product Product) DefaultPath() string {
@@ -49,7 +58,7 @@ func (product Product) DefaultPath() string {
 }
 
 func (product Product) MainImageURL(styles ...string) string {
-	style := "preview"
+	style := "main"
 	if len(styles) > 0 {
 		style = styles[0]
 	}
@@ -84,6 +93,12 @@ type ProductImage struct {
 	CategoryID   uint
 	SelectedType string
 	File         media_library.MediaLibraryStorage `sql:"size:4294967295;" media_library:"url:/system/{{class}}/{{primary_key}}/{{column}}.{{extension}}"`
+}
+
+func (productImage ProductImage) Validate(db *gorm.DB) {
+	if strings.TrimSpace(productImage.Title) == "" {
+		db.AddError(validations.NewError(productImage, "Title", "Tile can not be empty"))
+	}
 }
 
 func (productImage *ProductImage) SetSelectedType(typ string) {
@@ -150,6 +165,7 @@ type ColorVariation struct {
 	ColorCode      string
 	Images         media_library.MediaBox
 	SizeVariations []SizeVariation
+	publish2.SharedVersion
 }
 
 type ColorVariationImage struct {
@@ -167,8 +183,8 @@ func (colorVariation ColorVariation) MainImageURL() string {
 	return "/images/default_product.png"
 }
 
-func (ColorVariationImageStorage) GetSizes() map[string]media_library.Size {
-	return map[string]media_library.Size{
+func (ColorVariationImageStorage) GetSizes() map[string]*media_library.Size {
+	return map[string]*media_library.Size{
 		"small":  {Width: 320, Height: 320},
 		"middle": {Width: 640, Height: 640},
 		"big":    {Width: 1280, Height: 1280},
@@ -182,6 +198,7 @@ type SizeVariation struct {
 	SizeID            uint
 	Size              Size
 	AvailableQuantity uint
+	publish2.SharedVersion
 }
 
 func SizeVariations() []SizeVariation {
